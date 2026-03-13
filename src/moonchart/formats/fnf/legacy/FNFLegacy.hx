@@ -286,7 +286,7 @@ class FNFLegacyMetaBasic<T:FNFLegacyFormat, M> extends BasicJsonFormat<{song:T},
 	override function getEvents():Array<BasicEvent>
 	{
 		var events:Array<BasicEvent> = [];
-		var lastMustHit:Bool = FNFLegacy.FNF_LEGACY_DEFAULT_MUSTHIT;
+		var lastMustHit:Null<Bool> = null;
 
 		// Push musthit events
 		forEachSection(data.song.notes, (section, startTime, endTime) ->
