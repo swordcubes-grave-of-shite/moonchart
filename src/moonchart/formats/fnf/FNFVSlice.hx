@@ -4,11 +4,13 @@ import moonchart.backend.FormatData;
 import moonchart.backend.Timing;
 import moonchart.backend.Util;
 import moonchart.formats.BasicFormat;
+import moonchart.formats.fnf.FNFGlobal.BasicFNFCamFocusData;
 import moonchart.formats.fnf.FNFGlobal.BasicFNFEvent;
 import moonchart.formats.fnf.FNFGlobal.BasicFNFNoteType;
 import moonchart.formats.fnf.FNFGlobal.BasicFNFPlayAnimEvent;
 import moonchart.formats.fnf.FNFGlobal.FNFNoteTypeResolver;
 import moonchart.formats.fnf.legacy.FNFLegacy.FNFLegacyMetaValues;
+import moonchart.parsers._internal.ZipFile;
 
 using StringTools;
 
@@ -51,6 +53,7 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
 			name: "FNF (V-Slice)",
 			description: "The new and handsome FNF format.",
 			extension: "json",
+			packedExtension: "fnfc",
 			formatFile: formatFile,
 			hasMetaFile: TRUE,
 			metaFileExtension: "json",
@@ -175,7 +178,7 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
 			}
 			else
 			{
-				var camFocusData:Dynamic = {
+				var camFocusData:BasicFNFCamFocusData = {
 					char: FNFGlobal.resolveCamFocus(event),
 					ease: event.data.ease ?? "CLASSIC"
 				}
@@ -460,6 +463,28 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
 		super.fromJson(data, meta, diff);
 		this.diffs = diff ?? this.data.notes.keys();
 		return this;
+	}
+
+	override public function fromPack(path:String, diff:FormatDifficulty):FNFVSlice
+	{
+		var zip = new ZipFile().openFile(path);
+		var chartEntries = zip.filterEntries((entry) -> return entry.fileName.endsWith(".json"));
+
+		var chart:String = "";
+		var metadata:String = "";
+		var manifest:String = "";
+
+		for (entry in chartEntries)
+		{
+			if (entry.fileName.contains("chart"))
+				chart = zip.unzipString(entry);
+			else if (entry.fileName.contains("metadata"))
+				metadata = zip.unzipString(entry);
+			else if (entry.fileName.contains("manifest"))
+				manifest = zip.unzipString(entry);
+		}
+
+		return fromJson(chart, metadata, diff);
 	}
 }
 
