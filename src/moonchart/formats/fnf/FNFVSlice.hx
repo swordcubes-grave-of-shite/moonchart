@@ -170,7 +170,7 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
 
 		final extraCamData:Array<String> = ['duration', 'mode', 'x', 'y', 'zoom']; // im too lazy to type these out manually lol
 		var chartEvents = chart.data.events;
-		var events:Array<FNFVSliceEvent> = [];
+		var events:Array<FNFVSliceEvent> = Util.makeArray(chartEvents.length);
 
 		for (i in 0...chartEvents.length)
 		{
@@ -179,7 +179,7 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
 
 			if (!isBasicFocus)
 			{
-				events.push(resolveVSliceEvent(event));
+			    Util.setArray(events, i, resolveVSliceEvent(event));
 			}
 			else
 			{
@@ -194,7 +194,7 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
 						Reflect.setField(camFocusData, value, Reflect.field(event.data, value));
 				}
 
-				events.push({
+				Util.setArray(events, i, {
 					t: event.time,
 					e: VSLICE_FOCUS_EVENT,
 					v: camFocusData
