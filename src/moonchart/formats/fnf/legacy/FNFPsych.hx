@@ -55,7 +55,7 @@ class FNFPsychBasic<T:PsychJsonFormat> extends FNFLegacyMetaBasic<T, {song:T}>
 	 * was already a gf section.
 	 */
     public var alwaysMakeGfSectionEvents:Bool = false;
-	
+
 	/**
 	 * If to stack the values of events with more than 2 values due to psych's 2 value event limit.
 	 * Turn it off to limit your values to just the first 2 found in the data array.
@@ -91,6 +91,10 @@ class FNFPsychBasic<T:PsychJsonFormat> extends FNFLegacyMetaBasic<T, {song:T}>
 			case BasicFNFEvent.PLAY_ANIMATION:
 				var data:BasicFNFPlayAnimEvent = event.data;
 				return makePsychEvent(event.time, "Play Animation", data.anim, data.target);
+
+			case BasicFNFEvent.POSITION_CAMERA:
+			    var data:BasicFNFPositionCameraEvent = event.data;
+				return makePsychEvent(event.time, "Camera Follow Pos", Std.string(data.x), Std.string(data.y));
 		}
 
 		final values:Array<Dynamic> = Util.resolveEventValues(event);
@@ -217,6 +221,22 @@ class FNFPsychBasic<T:PsychJsonFormat> extends FNFLegacyMetaBasic<T, {song:T}>
 					name: BasicFNFEvent.PLAY_ANIMATION,
 					data: data
 				}
+
+			case "Camera Follow Pos":
+                var data:BasicFNFPositionCameraEvent = {
+                    x: Std.parseFloat(event.value1),
+                    y: Std.parseFloat(event.value2),
+
+                    ease: "CLASSIC",
+                    duration: 0, // ease doesn't matter on the CLASSIC ease
+
+                    isOffset: false
+    			}
+                return {
+                    time: time,
+                    name: BasicFNFEvent.POSITION_CAMERA,
+                    data: data
+                }
 		}
 
 		return {
