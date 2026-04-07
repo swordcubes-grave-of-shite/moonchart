@@ -225,7 +225,7 @@ class FNFCodename extends BasicJsonFormat<FNFCodenameFormat, FNFCodenameMeta>
 				return {
 					time: event.time,
 					name: "Camera Zoom",
-					params: [data.ease != "INSTANT", data.zoom, "camGame", data.duration, ease, easeDir] // TODO: add missing params
+					params: [data.ease != "INSTANT", data.zoom, "camGame", data.duration, ease + easeDir] // TODO: add missing params
 				}
 			case BasicFNFEvent.SET_CAMERA_BOP:
 				var data:BasicFNFSetCameraBopEvent = event.data;
