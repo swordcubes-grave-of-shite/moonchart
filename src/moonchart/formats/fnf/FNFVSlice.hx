@@ -391,8 +391,7 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
 			// on a character first so there is something to offset from
 			if(event.e == FNFVSlice.VSLICE_FOCUS_EVENT) {
                 final combinedEase:String = !(event.v is Int) ? ((event.v.ease ?? "CLASSIC") + (event.v.easeDir ?? "")) : "CLASSIC";
-    			if (!(event.v is Int)
-    				&& (event.v.x != null || event.v.y != null || event.v.duration != null || (combinedEase != "" && combinedEase != "CLASSIC")))
+    			if (!(event.v is Int) && ((event.v.x != null && event.v.x != 0) || (event.v.y != null && event.v.y != 0)))
     			{
     				final data:BasicFNFPositionCameraEvent = {
     					char: (event.v is Int) ? event.v : event.v.char ?? -1,
