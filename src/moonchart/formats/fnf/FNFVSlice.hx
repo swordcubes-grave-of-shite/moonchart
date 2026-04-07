@@ -420,7 +420,7 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
     				for (value in extraCamData)
     				{
     					if (Reflect.hasField(event.v, value))
-    						Reflect.setField(camFocusData, value, Reflect.field(event.data, value));
+    						Reflect.setField(data, value, Reflect.field(event.data, value));
     				}
     				return {
     					time: event.t,
