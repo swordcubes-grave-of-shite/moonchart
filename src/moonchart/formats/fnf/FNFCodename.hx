@@ -8,6 +8,8 @@ import moonchart.formats.BasicFormat;
 import moonchart.formats.fnf.FNFGlobal;
 import moonchart.formats.fnf.legacy.FNFLegacy;
 
+using StringTools;
+
 enum abstract FNFCodenameNoteType(String) from String to String
 {
 	var CODENAME_ALT_ANIM = "Alt Anim Note";
@@ -210,10 +212,20 @@ class FNFCodename extends BasicJsonFormat<FNFCodenameFormat, FNFCodenameMeta>
 				}
 			case BasicFNFEvent.ZOOM_CAMERA:
 				var data:BasicFNFZoomCameraEvent = event.data;
+
+				var ease:String = data.ease;
+				var easeDir:String = "";
+
+				// TOOD: is there a better way to do this?
+				var easeCheck:String = ease.toLowerCase();
+				if(easeCheck.endsWith("in")) easeDir = "In";
+				else if(easeCheck.endsWith("inout")) easeDir = "InOut";
+				else if(easeCheck.endsWith("out")) easeDir = "Out";
+
 				return {
 					time: event.time,
 					name: "Camera Zoom",
-					params: [data.ease != "INSTANT", data.zoom, "camGame", data.duration] // TODO: add missing params
+					params: [data.ease != "INSTANT", data.zoom, "camGame", data.duration, ease, easeDir] // TODO: add missing params
 				}
 			case BasicFNFEvent.SET_CAMERA_BOP:
 				var data:BasicFNFSetCameraBopEvent = event.data;
