@@ -378,23 +378,19 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
 	{
 		var vsliceEvents = data.events;
 		var eventsLength:Int = vsliceEvents.length;
-		var events:Array<BasicEvent> = Util.makeArray(eventsLength);
+		var events:Array<BasicEvent> = [];
 
 		for (i in 0...eventsLength)
 		{
 			final event = Util.getArray(vsliceEvents, i);
-			Util.setArray(events, i, encodeVSliceEvent(event));
-		}
+			events.push(encodeVSliceEvent(event));
 
-		return events;
-	}
-
-	function encodeVSliceEvent(event:FNFVSliceEvent):BasicEvent
-	{
-		switch (event.e)
-		{
-			case FNFVSlice.VSLICE_FOCUS_EVENT:
-    			final combinedEase:String = !(event.v is Int) ? ((event.v.ease ?? "CLASSIC") + (event.v.easeDir ?? "")) : "CLASSIC";
+			// Push a camera position after a regular FocusCamera event
+			// since Codename's version of the "Camera Position" event doesn't specify
+			// a character and instead just offsets from current cam pos, we have to focus
+			// on a character first so there is something to offset from
+			if(event.e == FNFVSlice.VSLICE_FOCUS_EVENT) {
+                final combinedEase:String = !(event.v is Int) ? ((event.v.ease ?? "CLASSIC") + (event.v.easeDir ?? "")) : "CLASSIC";
     			if (!(event.v is Int)
     				&& (event.v.x != null || event.v.y != null || event.v.duration != null || (combinedEase != "" && combinedEase != "CLASSIC")))
     			{
@@ -406,28 +402,39 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
     					duration: event.v.duration ?? 4.0,
     					isOffset: true
     				}
-    				return {
+    				events.push({
     					time: event.t,
     					name: BasicFNFEvent.POSITION_CAMERA,
     					data: data
-    				}
-    			} else {
-    				final data:BasicFNFCamFocusData = {
-    					char: (event.v is Int) ? event.v : event.v.char ?? -1,
-    					ease: combinedEase
-    				}
-    				final extraCamData:Array<String> = ['duration', 'mode', 'x', 'y', 'zoom']; // im too lazy to type these out manually lol
-    				for (value in extraCamData)
-    				{
-    					if (Reflect.hasField(event.v, value))
-    						Reflect.setField(data, value, Reflect.field(event.v, value));
-    				}
-    				return {
-    					time: event.t,
-    					name: event.e,
-    					data: data
-    				}
+     				});
     			}
+			}
+		}
+
+		return events;
+	}
+
+	function encodeVSliceEvent(event:FNFVSliceEvent):BasicEvent
+	{
+		switch (event.e)
+		{
+			case FNFVSlice.VSLICE_FOCUS_EVENT:
+			    final combinedEase:String = !(event.v is Int) ? ((event.v.ease ?? "CLASSIC") + (event.v.easeDir ?? "")) : "CLASSIC";
+				final data:BasicFNFCamFocusData = {
+   					char: (event.v is Int) ? event.v : event.v.char ?? -1,
+   					ease: combinedEase
+				}
+				final extraCamData:Array<String> = ['duration', 'mode', 'x', 'y', 'zoom']; // im too lazy to type these out manually lol
+				for (value in extraCamData)
+				{
+   					if (Reflect.hasField(event.v, value))
+  						Reflect.setField(data, value, Reflect.field(event.v, value));
+				}
+				return {
+   					time: event.t,
+   					name: event.e,
+   					data: data
+				}
 			case FNFVSlice.VSLICE_PLAY_ANIMATION_EVENT:
 				final data:BasicFNFPlayAnimEvent = {
 					target: event.v.target,
