@@ -132,6 +132,18 @@ class FNFLegacyMetaBasic<T:FNFLegacyFormat, M> extends BasicJsonFormat<{song:T},
 		return offsetMustHits ? FNFLegacy.mustHitLane(mustHit, lane) : lane;
 	}
 
+	public function createSection(mustHit:Bool, focusChar:Int, measure:BasicMeasure):FNFLegacySection
+	{
+	    return {
+			sectionNotes: [],
+			mustHitSection: mustHit,
+			lengthInSteps: Std.int(measure.stepsPerBeat * measure.beatsPerMeasure),
+			altAnim: false,
+			changeBPM: false,
+			bpm: 0.0
+		};
+	}
+
 	override function fromBasicFormat(chart:BasicChart, ?diff:FormatDifficulty):FNFLegacyMetaBasic<T, M>
 	{
 		var chartResolve = resolveDiffsNotes(chart, diff);
@@ -151,17 +163,27 @@ class FNFLegacyMetaBasic<T:FNFLegacyFormat, M> extends BasicJsonFormat<{song:T},
 		chart.data.events = filterEvents(chart.data.events);
 
 		var lastBpm = initBpm;
+
 		var lastMustHit:Bool = FNFLegacy.FNF_LEGACY_DEFAULT_MUSTHIT;
+		var lastFocusChar:Int = lastMustHit ? 1 : 0;
+
 		var nextMustHit:Null<Bool> = null;
+		var nextFocusChar:Null<Int> = null;
 
 		for (measure in measures)
 		{
 			var mustHit:Bool = lastMustHit;
+			var focusChar:Int = lastFocusChar;
 
 			if (nextMustHit != null)
 			{
 				mustHit = nextMustHit;
 				nextMustHit = null;
+			}
+			if (nextFocusChar != null)
+			{
+				focusChar = nextFocusChar;
+				nextFocusChar = null;
 			}
 
 			// Push must hit events
@@ -170,31 +192,30 @@ class FNFLegacyMetaBasic<T:FNFLegacyFormat, M> extends BasicJsonFormat<{song:T},
 				// Check if measure has a must hit event
 				if (FNFGlobal.isCamFocus(event))
 				{
-					var eventMustHit = FNFGlobal.resolveCamFocus(event) == BF;
+				    var char = FNFGlobal.resolveCamFocus(event);
+
+					var eventMustHit = char == BF;
 					var eventTime = (event.time - measure.startTime);
+
 					if (eventTime < measure.length / 2)
 					{
 						mustHit = eventMustHit;
+						focusChar = char;
+
 						nextMustHit = null;
+						nextFocusChar = null;
 					}
 					else
 					{
 						// Event happens too late, save it for the next measure (aprox)
 						nextMustHit = eventMustHit;
+						nextFocusChar = char;
 					}
 				}
 			}
 
 			// Create legacy section
-			var section:FNFLegacySection = {
-				sectionNotes: [],
-				mustHitSection: mustHit,
-				lengthInSteps: Std.int(measure.stepsPerBeat * measure.beatsPerMeasure),
-				altAnim: false,
-				changeBPM: false,
-				bpm: 0.0
-			}
-
+			var section:FNFLegacySection = createSection(mustHit, focusChar, measure);
 			lastMustHit = mustHit;
 
 			// Section has a bpm change event (aprox)
