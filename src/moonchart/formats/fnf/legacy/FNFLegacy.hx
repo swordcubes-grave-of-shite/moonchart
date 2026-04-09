@@ -217,6 +217,7 @@ class FNFLegacyMetaBasic<T:FNFLegacyFormat, M> extends BasicJsonFormat<{song:T},
 			// Create legacy section
 			var section:FNFLegacySection = createSection(mustHit, focusChar, measure);
 			lastMustHit = mustHit;
+			lastFocusChar = char;
 
 			// Section has a bpm change event (aprox)
 			if (measure.bpm != lastBpm)
