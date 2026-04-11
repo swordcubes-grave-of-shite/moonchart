@@ -263,8 +263,8 @@ class FNFLudumDare extends BasicFormat<FNFLudumDareFormat, FNFLudumDareMeta>
 					stepsPerBeat: 4
 				}
 			],
-			extraData: [LANES_LENGTH => 8]
-		};
+			extraData: [LANES_LENGTH => 8, STRUMLINE_LANES => 2, STRUMLINE_KEYS => 4]
+		}
 		if(meta.extra != null) {
 		    for(f in Reflect.fields(meta.extra)) {
 				if(!m.extraData.exists(f))
