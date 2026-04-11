@@ -150,6 +150,18 @@ class FNFNoteTypeResolver extends Resolver<FNFLegacyNoteType, BasicFNFNoteType>
 {
 	public var keepIfUnknown:Bool = true;
 
+	override function fromBasic(?ID:BasicFNFNoteType):FNFLegacyNoteType
+	{
+		if (ID == null)
+			return defFromBasic;
+
+		var strID:String = Std.string(ID);
+		if (!_from.exists(strID))
+			return keepIfUnknown ? strID : defFromBasic;
+
+		return _from.get(ID);
+	}
+
 	override function toBasic(?ID:FNFLegacyNoteType):BasicFNFNoteType
 	{
 		if (ID == null)
