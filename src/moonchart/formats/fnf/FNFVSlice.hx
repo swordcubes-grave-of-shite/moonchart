@@ -452,7 +452,7 @@ class FNFVSlice extends BasicJsonFormat<FNFVSliceFormat, FNFVSliceMeta>
 					zoom: event.v.zoom ?? 1.0,
 					duration: event.v.duration ?? 4,
 					ease: (event.v.ease ?? "linear") + (event.v.easeDir ?? ""),
-					mode: "stage"
+					mode: event.v.mode ?? "direct"
 				}
 				return {
 					time: event.t,
